@@ -345,6 +345,7 @@ int MODULEMAINFUNC (int argc, char** argv){
 	"\n"
 	" -iIP ip address or internal interface (clients are expected to connect)\n"
 	" -eIP ip address or external interface (outgoing connection will have this)\n"
+	" -UArFIRST-LAST Linux: local port range for the SOCKS5 UDP ASSOCIATE relay\n"
 	" -rHOST:PORT Use IP:port for connect back proxy instead of listen port\n"
 	" -RHOST:PORT Use PORT to listen connect back proxy connection to pass data to\n"
 	" -4 Use IPv4 for outgoing connections\n"
@@ -605,7 +606,22 @@ int MODULEMAINFUNC (int argc, char** argv){
 			srv.halfclose = *(argv[i]+2)? atoi(argv[i]+2) : 0;
 			break;
 		case 'U':
-			srv.udpauth = *(argv[i]+2)? atoi(argv[i]+2) : 0;
+			if(argv[i][2] == 'A' && argv[i][3] == 'r') {
+#ifdef __linux__
+				char *end;
+				unsigned long first, last;
+				errno = 0;
+				first = strtoul(argv[i] + 4, &end, 10);
+				if(errno || end == argv[i] + 4 || *end != '-') { error = 1; break; }
+				errno = 0;
+				last = strtoul(end + 1, &end, 10);
+				if(errno || *end || !first || !last || first > last || last > 65535) { error = 1; break; }
+				srv.udp_associate_port_range = ((uint32_t)last << 16) | (uint32_t)first;
+#else
+				error = 1;
+#endif
+			}
+			else srv.udpauth = *(argv[i]+2)? atoi(argv[i]+2) : 0;
 			break;
 		case 's':
 #ifdef WITHSPLICE
@@ -1797,5 +1813,3 @@ FILTER_ACTION handledatfltsrv(struct clientparam *cparam, unsigned char ** buf_p
 	}
 	return PASS;
 }
-
-

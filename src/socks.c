@@ -243,6 +243,7 @@ fflush(stderr);
 #endif
 		sin = param->sincl;
 		*SAPORT(&sin) = 0;
+		if(set_udp_associate_port_range(param->srv, param->clisock, (struct sockaddr *)&sin)) {RETURN (12);}
 		if(param->srv->so._bind(param->sostate, param->clisock,(struct sockaddr *)&sin,SASIZE(&sin))) {RETURN (12);}
 		sasize = SASIZE(&sin);
 		param->srv->so._getsockname(param->sostate, param->clisock, (struct sockaddr *)&sin, &sasize);

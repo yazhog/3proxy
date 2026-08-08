@@ -352,6 +352,7 @@ unsigned char * dologname (unsigned char *buf, unsigned char *name, const unsign
 int readconfig(FILE * fp);
 void initcommands(void);
 int connectwithpoll(struct clientparam *param, SOCKET sock, struct sockaddr *sa, SASIZETYPE size, int to);
+int set_udp_associate_port_range(struct srvparam *srv, SOCKET sock, const struct sockaddr *sa);
 
 
 uint32_t myrand(void);
@@ -433,4 +434,3 @@ extern char * ceargv[32];
 #define WEBBANNERS 35
 
 #endif
-

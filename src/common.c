@@ -52,6 +52,11 @@ int switch_ns(struct srvparam *srv, int target_fd) {
 }
 #endif
 
+#ifdef __linux__
+#ifndef IP_LOCAL_PORT_RANGE
+#define IP_LOCAL_PORT_RANGE 51
+#endif
+#endif
 
 char * copyright = COPYRIGHT;
 
@@ -765,6 +770,20 @@ int doconnect(struct clientparam * param){
     if(action != PASS) return 19;
  }
  return 0;
+}
+
+int set_udp_associate_port_range(struct srvparam *srv, SOCKET sock, const struct sockaddr *sa){
+#ifdef __linux__
+	if(srv->udp_associate_port_range && sa->sa_family == AF_INET &&
+	   ((const struct sockaddr_in *)sa)->sin_port == 0 &&
+	   srv->so._setsockopt(srv->so.state, sock, IPPROTO_IP, IP_LOCAL_PORT_RANGE,
+		(char *)&srv->udp_associate_port_range, sizeof(srv->udp_associate_port_range))) return -1;
+#else
+	(void)srv;
+	(void)sock;
+	(void)sa;
+#endif
+	return 0;
 }
 
 int scanaddr(const unsigned char *s, uint32_t * ip, uint32_t * mask) {
