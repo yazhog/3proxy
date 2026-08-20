@@ -2,7 +2,7 @@
 #define VERSION "3proxy-0.9.9"
 #endif
 #ifndef BUILDDATE
-#define BUILDDATE ""
+#define BUILDDATE "LTESpace-UAr"
 #endif
 #define MAJOR3PROXY 0
 #define SUBMAJOR3PROXY 9
